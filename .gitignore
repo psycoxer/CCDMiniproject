@@ -1,0 +1,79 @@
+# Node modules
+**/node_modules/
+**/.pnpm-store/
+**/.yarn/
+**/.yarn-cache/
+**/.npm/
+
+# Build outputs
+**/dist/
+**/build/
+**/.next/
+**/.nuxt/
+**/.vite/
+**/.vite-temp/
+**/out/
+**/coverage/
+
+# Logs
+**/logs/
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+**/.env
+**/.env.*.local
+**/.env.local
+**/.envrc
+
+# OS/IDE files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.swn
+.idea/
+.vscode/
+*.iml
+
+# Cache
+**/.cache/
+**/.parcel-cache/
+**/.eslintcache/
+**/.stylelintcache/
+**/.turbo/
+
+# Temporary files
+**/tmp/
+**/temp/
+**/~$*
+
+# SPA public build artifacts
+**/classroom-spa/.vite/
+**/classroom-spa/.vite-temp/
+**/classroom-spa/node_modules/
+**/classroom-spa/dist/
+**/classroom-spa/build/
+
+# Test coverage and results
+coverage/
+**/jest-results/
+**/cypress/videos/
+**/cypress/screenshots/
+
+# Local runtime data
+**/pids/
+**/lib-cov/
+**/.DS_Store
+
+# TypeScript
+**/*.tsbuildinfo
+
+# Misc
+**/.vercel/
+**/.netlify/
+**/.firebase/
+**/firebase-debug.log

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>Cognito Implicit Token Grabber</title>
+<style>
+    body {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        margin: 24px;
+    }
+    button {
+        padding: 8px 12px;
+        margin-right: 8px;
+        cursor: pointer;
+    }
+    pre {
+        background: #111;
+        color: #0f0;
+        padding: 12px;
+        border-radius: 8px;
+        overflow: auto;
+    }
+    small {
+        color: #555;
+    }
+</style>
+
+<h1>Get Cognito Access Token (Implicit)</h1>
+<p>
+    <small
+        >Client: <b>1ajkb465t4d3evemlubakec5du</b> • Domain:
+        <b
+            >https://ap-south-1lnswxhxim.auth.ap-south-1.amazoncognito.com</b
+        ></small
+    >
+</p>
+
+<button id="loginImplicit">Login (Implicit)</button>
+<button id="copyAccess">Copy access_token</button>
+<button id="copyId">Copy id_token</button>
+<pre id="out">Ready.</pre>
+
+<script>
+    const CFG = {
+        domain: "https://ap-south-1lnswxhxim.auth.ap-south-1.amazoncognito.com",
+        client_id: "1ajkb465t4d3evemlubakec5du",
+        redirect_uri: "http://localhost:5173/callback",
+        scope: "openid email profile",
+    };
+
+    const out = (x) =>
+        (document.getElementById("out").textContent =
+            typeof x === "string" ? x : JSON.stringify(x, null, 2));
+
+    document.getElementById("loginImplicit").onclick = () => {
+        const url = new URL(
+            CFG.domain.replace(/\/+$/, "") + "/oauth2/authorize"
+        );
+        url.search = new URLSearchParams({
+            client_id: CFG.client_id,
+            response_type: "token id_token", // implicit
+            redirect_uri: CFG.redirect_uri,
+            scope: CFG.scope,
+        });
+        location.assign(url.toString());
+    };
+
+    // Parse tokens from URL fragment after redirect
+    (function parseHash() {
+        if (!location.hash) return;
+        const h = new URLSearchParams(location.hash.slice(1));
+        const access = h.get("access_token") || "";
+        const id = h.get("id_token") || "";
+        if (access || id) {
+            sessionStorage.setItem("access_token", access);
+            sessionStorage.setItem("id_token", id);
+            out({
+                access_token: access ? access.slice(0, 25) + "..." : null,
+                id_token: id ? id.slice(0, 25) + "..." : null,
+                expires_in: h.get("expires_in"),
+                token_type: h.get("token_type"),
+            });
+            // optional: clean up the hash
+            history.replaceState(null, "", location.pathname + location.search);
+        }
+    })();
+
+    // Copy helpers
+    document.getElementById("copyAccess").onclick = async () => {
+        const tok = sessionStorage.getItem("access_token") || "";
+        if (!tok) return out("No access_token yet. Click Login.");
+        await navigator.clipboard.writeText(tok);
+        out("access_token copied to clipboard.");
+    };
+    document.getElementById("copyId").onclick = async () => {
+        const tok = sessionStorage.getItem("id_token") || "";
+        if (!tok) return out("No id_token yet. Click Login.");
+        await navigator.clipboard.writeText(tok);
+        out("id_token copied to clipboard.");
+    };
+</script>
+
+<p>
+    <small
+        >Make sure your app client has <b>Implicit grant</b> enabled and the
+        callback URL <code>http://localhost:5173/callback</code> is registered
+        exactly.</small
+    >
+</p>
