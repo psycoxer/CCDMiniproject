@@ -60,23 +60,20 @@ pipeline {
       }
     }
 
-    stage('Run SPA (static server)') {
-      steps {
-        dir('classroom-spa') {
-          sh '''
-            set -e
-            # stop previous instance if running
-            if [ -f serve.pid ] && ps -p $(cat serve.pid) > /dev/null 2>&1; then
-              kill $(cat serve.pid) || true
-              sleep 1
-            fi
-            # start new
-            nohup npx serve -s dist -l ${UI_PORT} > ../spa.log 2>&1 & echo $! > serve.pid
-            echo "SPA listening on :${UI_PORT}"
-          '''
+    stage('Run SPA (pm2)') {
+        steps {
+            dir('classroom-spa') {
+            sh '''
+                set -e
+                pm2 delete classroom-spa || true
+                pm2 serve dist --name classroom-spa --spa --port 5173 --host 0.0.0.0
+                pm2 save
+                pm2 status classroom-spa
+            '''
+            }
         }
-      }
     }
+
   }
 
   post {
