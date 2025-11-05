@@ -61,26 +61,28 @@ pipeline {
     }
 
     stage('Run SPA (pm2)') {
+    environment { UI_PORT = '5173' } // change if you want a different port
     steps {
         dir('classroom-spa') {
         sh '''
-            set -e
+            set -euo pipefail
+            CWD="$(pwd)"
+            [ -d dist ] || { echo "dist/ missing; run Build SPA stage first"; exit 1; }
 
-            # ensure `serve` is available for jenkins user
-            SERVE_BIN=$(command -v serve || true)
-            if [ -z "$SERVE_BIN" ]; then
-            npm i -g serve
-            SERVE_BIN=$(command -v serve)
-            fi
+            # free the port if something is already listening
+            fuser -k ${UI_PORT}/tcp || true
 
-            # free the port if a leftover process is holding it (ignore errors)
-            fuser -k 5173/tcp || true
-
-            # restart under PM2
+            # restart under PM2 (uses globally-installed http-server)
             pm2 delete classroom-spa || true
-            pm2 start "$SERVE_BIN" --name classroom-spa -- -s dist -l tcp://0.0.0.0:${UI_PORT}
+            pm2 start "http-server dist -p ${UI_PORT} -a 0.0.0.0 -s --cors" \
+            --name classroom-spa --time --cwd "$CWD"
             pm2 save
-            pm2 status classroom-spa
+
+            # quick health probe on localhost
+            for i in $(seq 1 10); do
+            curl -fsS "http://127.0.0.1:${UI_PORT}/" >/dev/null && break || sleep 1
+            done
+            echo "SPA listening on :${UI_PORT}"
         '''
         }
     }
