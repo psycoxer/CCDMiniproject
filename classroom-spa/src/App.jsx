@@ -30,7 +30,8 @@ const REDIRECT_URI = `${window.location.origin}/callback`;
 const LOGOUT_URI = `${window.location.origin}/`;
 
 // Your ALB (HTTP for now; switch to HTTPS + custom domain later)
-const API_BASE = "http://SeriveLB-1593805698.ap-south-1.elb.amazonaws.com";
+// const API_BASE = "http://SeriveLB-1593805698.ap-south-1.elb.amazonaws.com";
+const API_BASE = "";
 
 // ====== PKCE HELPERS ======
 const b64url = (buf) => {
