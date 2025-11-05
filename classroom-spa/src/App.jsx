@@ -31,7 +31,7 @@ const LOGOUT_URI = `${window.location.origin}/`;
 
 // Your ALB (HTTP for now; switch to HTTPS + custom domain later)
 // const API_BASE = "http://SeriveLB-1593805698.ap-south-1.elb.amazonaws.com";
-const API_BASE = "";
+const API_BASE = "https://d33ozn9tb26io5.cloudfront.net";
 
 // ====== PKCE HELPERS ======
 const b64url = (buf) => {
