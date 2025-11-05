@@ -61,17 +61,29 @@ pipeline {
     }
 
     stage('Run SPA (pm2)') {
-        steps {
-            dir('classroom-spa') {
-            sh '''
-                set -e
-                pm2 delete classroom-spa || true
-                pm2 serve dist --name classroom-spa --spa --port 5173 --host 0.0.0.0
-                pm2 save
-                pm2 status classroom-spa
-            '''
-            }
+    steps {
+        dir('classroom-spa') {
+        sh '''
+            set -e
+
+            # ensure `serve` is available for jenkins user
+            SERVE_BIN=$(command -v serve || true)
+            if [ -z "$SERVE_BIN" ]; then
+            npm i -g serve
+            SERVE_BIN=$(command -v serve)
+            fi
+
+            # free the port if a leftover process is holding it (ignore errors)
+            fuser -k 5173/tcp || true
+
+            # restart under PM2
+            pm2 delete classroom-spa || true
+            pm2 start "$SERVE_BIN" --name classroom-spa -- -s dist -l tcp://0.0.0.0:${UI_PORT}
+            pm2 save
+            pm2 status classroom-spa
+        '''
         }
+    }
     }
 
   }
