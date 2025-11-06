@@ -48,6 +48,18 @@ pipeline {
       }
     }
 
+    stage('Redeploy ECS Services (force)') {
+      steps {
+        sh '''
+          set -e
+          CLUSTER="amznClassroom"
+          for SVC in assignment-service-service-1feic8fz classroom-service-service-vhr17qym materials-service-service-gmwp0g6x submission-service-service-cg00q5gb; do
+            aws ecs update-service --cluster "$CLUSTER" --service "$SVC" --force-new-deployment
+          done
+        '''
+      }
+    }
+
     stage('Build SPA') {
       steps {
         dir('classroom-spa') {
